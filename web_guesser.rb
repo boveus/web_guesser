@@ -7,21 +7,41 @@ require 'sinatra/reloader'
 
   get '/' do
     guess = params["guess"]
-    guess_handler(guess)
+    cheat = params[:cheat]
+    guess_handler(guess, cheat)
   end
 
-  def guess_handler(guess)
-    if @@remaining_guesses > 1
-      @@remaining_guesses -= 1
-      message, background = check_guess(guess)
-      message += "You have #{@@remaining_guesses} guess(es) remaining. <br>"
-      erb :index, :locals => {:message => message, :background_color => background}
+  def welcome
+    'Welcome to number guesser, please enter a guess between 1 and 100.'
+  end
+
+  def guess_handler(guess, cheat)
+    if @@remaining_guesses == 5 && guess.nil?
+      message = welcome
+      guess = params["guess"]
+      if cheat then message =+ "The secret number is #{SECRET_NUMBER} ;-) <br>" end
+      erb :index, :locals => {:message => message, :background_color => 'white'}
+    elsif @@remaining_guesses == 5 && !guess.nil?
+      display_page(guess, cheat)
+    elsif @@remaining_guesses > 1
+      display_page(guess, cheat)
     else
       @@remaining_guesses = 5
-      message = player_lost
       guess = params["guess"]
-      erb :index, :locals => {:message => message, :background_color => 'white'}
+      erb :index, :locals => {:message => player_lost, :background_color => 'white'}
     end
+  end
+
+  def display_page(guess, cheat)
+    message, background = check_guess(guess)
+    @@remaining_guesses -= 1
+    if cheat then message =+ "The secret number is #{SECRET_NUMBER} ;-) <br>" end
+    message += "You have #{@@remaining_guesses} guess(es) remaining. <br>"
+    erb :index, :locals => {:message => message, :background_color => background}
+  end
+
+  def cheat_handler(cheat)
+    if cheat then message += "The secret number is #{SECRET_NUMBER}" end
   end
 
   def player_lost
@@ -44,16 +64,3 @@ require 'sinatra/reloader'
       return message + "That is correct! <br>", 'green'
     end
   end
-
-
-# Create a class variable with @@ that keeps track of
-#  how many guesses they have remaining
-# When subtract one from that each guess
-# If the guesses reach zero, then…
-# Generate a new number
-# Set the number of guesses back to five
-# Show them a message that they’ve lost and a new number has been generated
-# If they guess correctly, then…
-# Generate a new number
-# Set the number of guesses back to five
-# Show the message that they’ve guessed correctly
