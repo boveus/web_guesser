@@ -19,7 +19,7 @@ require 'sinatra/reloader'
     if @@remaining_guesses == 5 && guess.nil?
       message = welcome
       guess = params["guess"]
-      if cheat then message =+ "The secret number is #{@@secret_number} ;-) <br>" end
+      if cheat then message += "The secret number is #{@@secret_number} ;-) <br>" end
       erb :index, :locals => {:message => message, :background_color => 'white'}
     elsif @@remaining_guesses == 5 && !guess.nil?
       display_page(guess, cheat)
@@ -38,7 +38,7 @@ require 'sinatra/reloader'
 
   def display_page(guess, cheat)
     message, background = check_guess(guess)
-    if cheat then message =+ "The secret number is #{@@secret_number} ;-) <br>" end
+    if cheat then message += "The secret number is #{@@secret_number} ;-) <br>" end
     message += "You have #{@@remaining_guesses} guess(es) remaining. <br>"
     erb :index, :locals => {:message => message, :background_color => background}
   end
